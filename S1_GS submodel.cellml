@@ -33,18 +33,19 @@
     </component>
     <component name="S1_NKG2D">
         <variable name="t" public_interface="in" units="s"/>
-        <variable initial_value="0" name="k_f1" public_interface="out" units="second_order_rate_constant"/>
-        <variable initial_value="0" name="k_b1" public_interface="out" units="first_order_rate_constant"/>
-        <variable initial_value="0" name="k_f2" public_interface="out" units="second_order_rate_constant"/>
-        <variable initial_value="0" name="k_b2" public_interface="out" units="first_order_rate_constant"/>
-        <variable initial_value="0" name="k_f3" public_interface="out" units="second_order_rate_constant"/>
-        <variable initial_value="0" name="k_b3" public_interface="out" units="first_order_rate_constant"/>
-        <variable initial_value="0" name="k_f4" public_interface="out" units="first_order_rate_constant"/>
-        <variable initial_value="0" name="k_f5" public_interface="out" units="first_order_rate_constant"/>
-        <variable initial_value="0" name="k_b5" public_interface="out" units="second_order_rate_constant"/>
-        <variable initial_value="0" name="k_f6" public_interface="out" units="first_order_rate_constant"/>
-        <variable initial_value="0" name="k_f7" public_interface="out" units="first_order_rate_constant"/>
-        <variable initial_value="0" name="k_b7" public_interface="out" units="second_order_rate_constant"/>
+        <variable initial_value="0.00017" name="k_f1" public_interface="out" units="second_order_rate_constant"/>
+        <variable initial_value="0.023" name="k_b1" public_interface="out" units="first_order_rate_constant"/>
+        <variable initial_value="0.00984" name="k_f2" public_interface="out" units="second_order_rate_constant"/>
+        <variable initial_value="1.8" name="k_b2" public_interface="out" units="first_order_rate_constant"/>
+        <variable initial_value="1.1" name="k_f3" public_interface="out" units="second_order_rate_constant"/>
+        <variable initial_value="70" name="k_b3" public_interface="out" units="first_order_rate_constant"/>
+        <!--dummy values-->
+        <variable initial_value="1" name="k_f4" public_interface="out" units="first_order_rate_constant"/>
+        <variable initial_value="0.01" name="k_f5" public_interface="out" units="first_order_rate_constant"/>
+        <variable initial_value="0.1" name="k_b5" public_interface="out" units="second_order_rate_constant"/>
+        <variable initial_value="0.00008" name="k_f6" public_interface="out" units="first_order_rate_constant"/>
+        <variable initial_value="0.0000001" name="k_f7" public_interface="out" units="first_order_rate_constant"/>
+        <variable initial_value="1" name="k_b7" public_interface="out" units="second_order_rate_constant"/>
         <variable name="J1" units="flux"/>
         <variable name="J2" units="flux"/>
         <variable name="J3" units="flux"/>
@@ -52,13 +53,14 @@
         <variable name="J5" units="flux"/>
         <variable name="J6" units="flux"/>
         <variable name="J7" units="flux"/>
-        <variable initial_value="0" name="S1" units="nM"/>
-        <variable initial_value="0" name="NKG2D" units="nM"/>
-        <variable initial_value="1" name="DAP10" units="nM"/>
-        <variable initial_value="0" name="plck" units="nM"/>
+        <variable initial_value="33" name="S1" units="nM"/>
+        <variable initial_value="69.7" name="NKG2D" units="nM"/>
+        <!--dummy from mesceke-->
+        <variable initial_value="279" name="DAP10" units="nM"/>
+        <variable initial_value="5895" name="plck" units="nM"/>
         <variable initial_value="0" name="lck" units="nM"/>
-        <variable initial_value="0" name="CD45" units="nM"/>
-        <variable initial_value="0" name="GS" units="nM"/>
+        <variable initial_value="996" name="CD45" units="nM"/>
+        <variable initial_value="10" name="GS" units="nM"/>
         <variable initial_value="0" name="S2D" units="nM"/>
         <variable initial_value="0" name="S2D_DAP10" units="nM"/>
         <variable initial_value="0" name="S2D_DAP10_plck" units="nM"/>
