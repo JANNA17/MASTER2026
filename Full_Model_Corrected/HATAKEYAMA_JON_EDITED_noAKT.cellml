@@ -1,0 +1,475 @@
+<?xml version='1.0'?>
+<model name="HATAKEYAMA_JON_EDITED_noAKT" xmlns="http://www.cellml.org/cellml/1.1#" xmlns:cellml="http://www.cellml.org/cellml/1.1#" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <import xlink:href="HATAKEYAMA_JON_EDITED.cellml">
+        <component component_ref="RasGDPtoRasGTP" name="RasGDPtoRasGTP"/>
+        <component component_ref="RAF" name="RAF"/>
+        <component component_ref="MEK" name="MEK"/>
+        <component component_ref="ERK" name="ERK"/>
+    </import>
+    <units name="s">
+        <unit units="second"/>
+    </units>
+    <units name="nM">
+        <unit prefix="nano" units="mole"/>
+        <unit exponent="-1" units="litre"/>
+    </units>
+    <!-- Wrapper component that encapsulates Ras -> RAF -> MEK -> ERK
+ and locks Akt_PIP and Akt_PIPP inputs to 0 nM-->
+    <component name="Hatakeyama_MAPK_Cascade">
+        <variable name="t" private_interface="out" public_interface="in" units="s"/>
+        <variable name="S2D_pDAP10_GS" private_interface="out" public_interface="in" units="nM"/>
+        <!-- Exposed Pathway Outputs-->
+        <variable name="RasGTP" private_interface="in" public_interface="out" units="nM"/>
+        <variable name="RAF_star" private_interface="in" public_interface="out" units="nM"/>
+        <variable name="MEKP" private_interface="in" public_interface="out" units="nM"/>
+        <variable name="MEKPP" private_interface="in" public_interface="out" units="nM"/>
+        <variable name="ERKPP" private_interface="in" public_interface="out" units="nM"/>
+        <!-- Zeroed constants to satisfy and disable Akt cross-talk ports on RAF and MEK-->
+        <variable initial_value="0" name="Akt_PIP_zero" private_interface="out" units="nM"/>
+        <variable initial_value="0" name="Akt_PIPP_zero" private_interface="out" units="nM"/>
+    </component>
+    <group>
+        <relationship_ref relationship="encapsulation"/>
+        <component_ref component="Hatakeyama_MAPK_Cascade">
+            <component_ref component="RasGDPtoRasGTP"/>
+            <component_ref component="RAF"/>
+            <component_ref component="MEK"/>
+            <component_ref component="ERK"/>
+        </component_ref>
+    </group>
+    <!-- Wrapper-to-Child Mappings-->
+    <connection>
+        <map_components component_1="Hatakeyama_MAPK_Cascade" component_2="RasGDPtoRasGTP"/>
+        <map_variables variable_1="t" variable_2="time"/>
+        <map_variables variable_1="S2D_pDAP10_GS" variable_2="ShGS"/>
+        <map_variables variable_1="RasGTP" variable_2="RasGTP"/>
+    </connection>
+    <connection>
+        <map_components component_1="Hatakeyama_MAPK_Cascade" component_2="RAF"/>
+        <map_variables variable_1="t" variable_2="time"/>
+        <map_variables variable_1="Akt_PIPP_zero" variable_2="Akt_PIPP"/>
+        <map_variables variable_1="RAF_star" variable_2="RAF_star"/>
+    </connection>
+    <connection>
+        <map_components component_1="Hatakeyama_MAPK_Cascade" component_2="MEK"/>
+        <map_variables variable_1="t" variable_2="time"/>
+        <map_variables variable_1="Akt_PIP_zero" variable_2="Akt_PIP"/>
+        <map_variables variable_1="Akt_PIPP_zero" variable_2="Akt_PIPP"/>
+        <map_variables variable_1="MEKP" variable_2="MEKP"/>
+        <map_variables variable_1="MEKPP" variable_2="MEKPP"/>
+    </connection>
+    <connection>
+        <map_components component_1="Hatakeyama_MAPK_Cascade" component_2="ERK"/>
+        <map_variables variable_1="t" variable_2="time"/>
+        <map_variables variable_1="ERKPP" variable_2="ERKPP"/>
+    </connection>
+    <!-- Internal Cascade Mappings (Ras -> RAF -> MEK -> ERK)-->
+    <connection>
+        <map_components component_1="RasGDPtoRasGTP" component_2="RAF"/>
+        <map_variables variable_1="RasGTP" variable_2="RasGTP"/>
+    </connection>
+    <connection>
+        <map_components component_1="RAF" component_2="MEK"/>
+        <map_variables variable_1="RAF_star" variable_2="RAF_star"/>
+    </connection>
+    <connection>
+        <map_components component_1="MEK" component_2="ERK"/>
+        <map_variables variable_1="MEKPP" variable_2="MEKPP"/>
+    </connection>
+    <documentation xmlns="http://cellml.org/tmp-documentation">
+        <article xmlns="http://cellml.org/tmp-documentation">
+            <articleinfo xmlns="http://cellml.org/tmp-documentation">
+                <title xmlns="http://cellml.org/tmp-documentation">A computational model on the modulation of mitogen-activated protein kinase (MAPK) and Akt pathways in heregulin-induced ErbB signalling</title>
+                <author xmlns="http://cellml.org/tmp-documentation">
+                    <firstname xmlns="http://cellml.org/tmp-documentation">Catherine</firstname>
+                    <surname xmlns="http://cellml.org/tmp-documentation">Lloyd</surname>
+                    <affiliation xmlns="http://cellml.org/tmp-documentation">
+                        <shortaffil xmlns="http://cellml.org/tmp-documentation">Auckland Bioengineering Institute, The University of Auckland</shortaffil>
+                    </affiliation>
+                </author>
+            </articleinfo>
+            <section xmlns="http://cellml.org/tmp-documentation" id="sec_status">
+                <title xmlns="http://cellml.org/tmp-documentation">Model Status</title>
+                <para xmlns="http://cellml.org/tmp-documentation">
+        This version of the model has been checked in COR and OpenCell and it runs to replicate the published results.  The units have been checked and they are consistent.
+    </para>
+            </section>
+            <sect1 xmlns="http://cellml.org/tmp-documentation" id="sec_structure">
+                <title xmlns="http://cellml.org/tmp-documentation">Model Structure</title>
+                <para xmlns="http://cellml.org/tmp-documentation">
+ABSTRACT: ErbB tyrosine kinase receptors mediate mitogenic signal cascade by binding a variety of ligands and recruiting the different cassettes of adaptor proteins. In the present study, we examined heregulin (HRG)-induced signal transduction of ErbB4 receptor and found that the phosphatidylinositol 3'-kinase (PI3K)-Akt pathway negatively regulated the extracellular signal-regulated kinase (ERK) cascade by phosphorylating Raf-1 on Ser(259). As the time-course kinetics of Akt and ERK activities seemed to be transient and complex, we constructed a mathematical simulation model for HRG-induced ErbB4 receptor signalling to explain the dynamics of the regulation mechanism in this signal transduction cascade. The model reflected well the experimental results observed in HRG-induced ErbB4 cells and in other modes of growth hormone-induced cell signalling that involve Raf-Akt cross-talk. The model suggested that HRG signalling is regulated by protein phosphatase 2A as well as Raf-Akt cross-talk, and protein phosphatase 2A modulates the kinase activity in both the PI3K-Akt and MAPK (mitogen-activated protein kinase) pathways.
+</para>
+                <para xmlns="http://cellml.org/tmp-documentation">
+The original paper reference is cited below:
+</para>
+                <para xmlns="http://cellml.org/tmp-documentation">
+A computational model on the modulation of mitogen-activated protein kinase (MAPK) and Akt pathways in heregulin-induced ErbB signalling, Mariko Hatakeyama, Shuhei Kimura, Takashi Naka, Takuji Kawasaki, Noriko Yumoto, Mio Ichikawa, Jae-Hoon Kim, Kazuki Saito, Mihoro Saeki, Mikako Shirouzu, Shigeyuki Yokoyama, and Akihiko Konagaya, 2003, <emphasis xmlns="http://cellml.org/tmp-documentation">The Biochemical Journal</emphasis>, 373, 451-463. <ulink xmlns="http://cellml.org/tmp-documentation" url="http://www.ncbi.nlm.nih.gov/pubmed/12691603">PubMed ID: 12691603</ulink>
+                </para>
+                <informalfigure xmlns="http://cellml.org/tmp-documentation" float="0" id="fig_pathway_diagram">
+                    <mediaobject xmlns="http://cellml.org/tmp-documentation">
+                        <imageobject xmlns="http://cellml.org/tmp-documentation">
+                            <objectinfo xmlns="http://cellml.org/tmp-documentation">
+                                <title xmlns="http://cellml.org/tmp-documentation">model diagram</title>
+                            </objectinfo>
+                            <imagedata xmlns="http://cellml.org/tmp-documentation" fileref="hatakeyama_networkdiagram_scaled_2003.png"/>
+                        </imageobject>
+                    </mediaobject>
+                    <caption xmlns="http://cellml.org/tmp-documentation">A schematic diagram of the complete signalling network.</caption>
+                </informalfigure>
+            </sect1>
+        </article>
+    </documentation>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#5712261e-d6f8-4028-833d-dc14399f529c">
+            <W3CDTF xmlns="http://purl.org/dc/terms/" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">2007-10-04T11:06:52+13:00</W3CDTF>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#0b982b3b-957b-4e0f-ae51-a07d69753957">
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#3d848b6a-fb6a-40dd-86d2-27a018cddc24"/>
+            </N>
+            <ORG xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#9ace0219-fc7a-4208-8425-82e8fea8b11b"/>
+            </ORG>
+            <EMAIL xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#a1fa1e28-061b-465a-be4b-27f1bca81cbc"/>
+            </EMAIL>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#3d848b6a-fb6a-40dd-86d2-27a018cddc24">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">McCormick</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Matthew</Given>
+            <Other xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n1"/>
+            </Other>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#9ace0219-fc7a-4208-8425-82e8fea8b11b">
+            <Orgunit xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Auckland Bioengineering Institute</Orgunit>
+            <Orgname xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">The University of Auckland</Orgname>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#a1fa1e28-061b-465a-be4b-27f1bca81cbc">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://imc.org/vCard/3.0#internet"/>
+            </rdf:type>
+            <rdf:value xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">m.mccormick@auckland.ac.nz</rdf:value>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#a41a8346-790a-4c42-a5ae-7850c84d30e6">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Kimura</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Shuhei</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#9f417d1d-577a-4d7c-a7fc-499e549bc407">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Yokoyama</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Shigeyuki</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#b1c8e269-357d-4aef-8100-e97a3c9f265b">
+            <Pubmed_id xmlns="http://www.cellml.org/bqs/1.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">12691603</Pubmed_id>
+            <JournalArticle xmlns="http://www.cellml.org/bqs/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#1c74bac1-b157-4719-a651-f270b48ca264"/>
+            </JournalArticle>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#1c74bac1-b157-4719-a651-f270b48ca264">
+            <title xmlns="http://purl.org/dc/elements/1.1/" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">A computational model on the modulation of mitogen-activated protein kinase (MAPK) and Akt pathways in heregulin-induced ErbB signalling</title>
+            <creator xmlns="http://purl.org/dc/elements/1.1/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#4b8aa5ab-0a79-43a4-831d-7d91f6191918"/>
+            </creator>
+            <volume xmlns="http://www.cellml.org/bqs/1.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">373</volume>
+            <first_page xmlns="http://www.cellml.org/bqs/1.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">451</first_page>
+            <issued xmlns="http://purl.org/dc/terms/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#c1efcc6c-6f22-48e1-910b-4502f6a68cf9"/>
+            </issued>
+            <last_page xmlns="http://www.cellml.org/bqs/1.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">463</last_page>
+            <Journal xmlns="http://www.cellml.org/bqs/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#0d301f2c-f766-48fb-99dc-71d43b3e7e0b"/>
+            </Journal>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#4b8aa5ab-0a79-43a4-831d-7d91f6191918">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq"/>
+            </rdf:type>
+            <rdf:_2 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#9590e834-5a80-4622-a74d-cd193c7bf5b3"/>
+            </rdf:_2>
+            <rdf:_1 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#b3bb192f-a6c2-4524-8870-c9f7e0cb395d"/>
+            </rdf:_1>
+            <rdf:_6 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#afc054f8-64d5-4062-a68e-ec59358088e9"/>
+            </rdf:_6>
+            <rdf:_3 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#b937e063-b84c-4bd4-9896-0ea82a798a20"/>
+            </rdf:_3>
+            <rdf:_8 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#4380e64e-7800-49db-a47d-5f4209c330b3"/>
+            </rdf:_8>
+            <rdf:_5 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#9418e400-0058-4e1a-af77-6fa626f6c85b"/>
+            </rdf:_5>
+            <rdf:_11 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#a6405285-ae6c-4c66-8ef1-a9aa2dba0bf2"/>
+            </rdf:_11>
+            <rdf:_4 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#bd35959e-d11d-4041-b346-ec769628bf0a"/>
+            </rdf:_4>
+            <rdf:_12 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#359d9e86-9562-406f-a7f1-7c71942617f6"/>
+            </rdf:_12>
+            <rdf:_10 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#b926f440-af70-45ea-9e4a-8922602d34a8"/>
+            </rdf:_10>
+            <rdf:_7 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#5f1ae78c-b27e-480f-8168-6cae9a4fa714"/>
+            </rdf:_7>
+            <rdf:_9 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#7ad23968-7a2c-422e-9563-a1672e5c7829"/>
+            </rdf:_9>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#c1efcc6c-6f22-48e1-910b-4502f6a68cf9">
+            <W3CDTF xmlns="http://purl.org/dc/terms/" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">2003-07-15</W3CDTF>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#0d301f2c-f766-48fb-99dc-71d43b3e7e0b">
+            <title xmlns="http://purl.org/dc/elements/1.1/" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">The Biochemical Journal</title>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#9590e834-5a80-4622-a74d-cd193c7bf5b3">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#a41a8346-790a-4c42-a5ae-7850c84d30e6"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#b3bb192f-a6c2-4524-8870-c9f7e0cb395d">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#786b5a9d-60af-49ba-b688-ea104d4c9bec"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#afc054f8-64d5-4062-a68e-ec59358088e9">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#58aa6253-dd61-453a-8b51-e4fb7c7cb7e2"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#b937e063-b84c-4bd4-9896-0ea82a798a20">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#83271030-6d0f-41c4-a9b8-944163c8609b"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#4380e64e-7800-49db-a47d-5f4209c330b3">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#eb687547-22e6-44d7-b0b1-04d13f55dfb0"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#9418e400-0058-4e1a-af77-6fa626f6c85b">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#2bf5b4f6-9e01-423f-a075-6eb7cccff81c"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#a6405285-ae6c-4c66-8ef1-a9aa2dba0bf2">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#9f417d1d-577a-4d7c-a7fc-499e549bc407"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#bd35959e-d11d-4041-b346-ec769628bf0a">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#fa213f0e-1ad1-4880-9fc6-3f2d687a1450"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#359d9e86-9562-406f-a7f1-7c71942617f6">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#d0a19a37-c244-4e6d-8059-12a3899ad630"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#b926f440-af70-45ea-9e4a-8922602d34a8">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#29060d99-83e6-449f-8f70-d7baf3aba53b"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#5f1ae78c-b27e-480f-8168-6cae9a4fa714">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#dc76cc57-9f52-4209-894e-85467cb774aa"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#7ad23968-7a2c-422e-9563-a1672e5c7829">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.cellml.org/bqs/1.0#Person"/>
+            </rdf:type>
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#dd0b57d1-d231-489f-b26a-bf49197bdd59"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#786b5a9d-60af-49ba-b688-ea104d4c9bec">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Hatakeyama</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Mariko</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#58aa6253-dd61-453a-8b51-e4fb7c7cb7e2">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Ichikawa</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Mio</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#83271030-6d0f-41c4-a9b8-944163c8609b">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Naka</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Takashi</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#eb687547-22e6-44d7-b0b1-04d13f55dfb0">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Saito</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Kazuki</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#2bf5b4f6-9e01-423f-a075-6eb7cccff81c">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Yumoto</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Noriko</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#fa213f0e-1ad1-4880-9fc6-3f2d687a1450">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Kawasaki</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Takuji</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#d0a19a37-c244-4e6d-8059-12a3899ad630">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Konagaya</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Akihiko</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#29060d99-83e6-449f-8f70-d7baf3aba53b">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Shirouzu</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Mikako</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#dc76cc57-9f52-4209-894e-85467cb774aa">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Kim</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Jae-Hoon</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#dd0b57d1-d231-489f-b26a-bf49197bdd59">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Saeki</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Mihoro</Given>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n2">
+            <subject xmlns="http://purl.org/dc/elements/1.1/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n3"/>
+            </subject>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n3">
+            <rdf:value xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n4"/>
+            </rdf:value>
+            <subject_type xmlns="http://www.cellml.org/bqs/1.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">keyword</subject_type>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n4">
+            <rdf:type xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#Bag"/>
+            </rdf:type>
+            <rdf:_2 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">cerebral aneurysm</rdf:_2>
+            <rdf:_1 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">signal transduction</rdf:_1>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#adbe68a2-4be3-4356-8390-9a1b33410923">
+            <W3CDTF xmlns="http://purl.org/dc/terms/" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">2007-08-27T00:00:00+00:00</W3CDTF>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#fec354de-f07d-4a08-b264-27fef8f02120">
+            <FN xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Catherine Lloyd</FN>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#fbd36f2c-1317-4c5d-9fbd-3c852ad23ab6">
+            <rdf:value xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace"/>
+            <creator xmlns="http://purl.org/dc/elements/1.1/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#1040aaeb-325f-4711-81cb-da8d592223e6"/>
+            </creator>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#1040aaeb-325f-4711-81cb-da8d592223e6">
+            <FN xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n5"/>
+            </FN>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#2cff3ad8-e43f-4e00-aa66-20182a34a3c9">
+            <N xmlns="http://www.w3.org/2001/vcard-rdf/3.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#944de2c1-85ad-4dd2-86b2-bd6f30ba820e"/>
+            </N>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#944de2c1-85ad-4dd2-86b2-bd6f30ba820e">
+            <Family xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Lloyd</Family>
+            <Given xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Catherine</Given>
+            <Other xmlns="http://www.w3.org/2001/vcard-rdf/3.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">May</Other>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="">
+            <creator xmlns="http://purl.org/dc/elements/1.1/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#0b982b3b-957b-4e0f-ae51-a07d69753957"/>
+            </creator>
+            <publisher xmlns="http://purl.org/dc/elements/1.1/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n6"/>
+            </publisher>
+            <created xmlns="http://purl.org/dc/terms/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#adbe68a2-4be3-4356-8390-9a1b33410923"/>
+            </created>
+            <modification xmlns="http://www.cellml.org/metadata/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#06300c6e-3079-406f-bed8-a105630e7790"/>
+            </modification>
+            <comment xmlns="http://www.cellml.org/metadata/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#01b58e17-0256-4f90-af5e-fe062e53696b"/>
+            </comment>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#06300c6e-3079-406f-bed8-a105630e7790">
+            <rdf:value xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">Checked model in COR.  Added a couple of initial values, corrected the unit definitions and also several units in several equations.</rdf:value>
+            <modified xmlns="http://purl.org/dc/terms/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#5712261e-d6f8-4028-833d-dc14399f529c"/>
+            </modified>
+            <modifier xmlns="http://www.cellml.org/metadata/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#2cff3ad8-e43f-4e00-aa66-20182a34a3c9"/>
+            </modifier>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#01b58e17-0256-4f90-af5e-fe062e53696b">
+            <rdf:value xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">The model now runs in PCEnv to replicate the published results - we think!  The only question mark is over how the variables are expressed - as nM in the model and then as %s in the figures.  We're not sure why there's this difference.</rdf:value>
+            <creator xmlns="http://purl.org/dc/elements/1.1/">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#fec354de-f07d-4a08-b264-27fef8f02120"/>
+            </creator>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="#bhalla_model_1999">
+            <comment xmlns="http://www.cellml.org/metadata/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#fbd36f2c-1317-4c5d-9fbd-3c852ad23ab6"/>
+            </comment>
+            <reference xmlns="http://www.cellml.org/bqs/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="rdf:#b1c8e269-357d-4aef-8100-e97a3c9f265b"/>
+            </reference>
+            <reference xmlns="http://www.cellml.org/bqs/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n2"/>
+            </reference>
+            <simulation xmlns="http://www.cellml.org/metadata/simulation/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n7"/>
+            </simulation>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n7">
+            <boundIntervals xmlns="http://www.cellml.org/metadata/simulation/1.0#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n8"/>
+            </boundIntervals>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n8">
+            <rdf:first xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n9"/>
+            </rdf:first>
+            <rdf:rest xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+                <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:about="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+            </rdf:rest>
+        </rdf:Description>
+        <rdf:Description xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" rdf:nodeID="n9">
+            <pointDensity xmlns="http://www.cellml.org/metadata/simulation/1.0#nonstandard-" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">1000000</pointDensity>
+            <endingValue xmlns="http://www.cellml.org/metadata/simulation/1.0#" xml:lang="en" xmlns:xml="http://www.w3.org/XML/1998/namespace">500</endingValue>
+        </rdf:Description>
+    </rdf:RDF>
+</model>
